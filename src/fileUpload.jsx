@@ -3,7 +3,6 @@ import { useDropzone } from 'react-dropzone';
 import ExcelJS from 'exceljs';
 
 const FileUploader = ({ onFileRead }) => {
-  const [fileContent, setFileContent] = useState('');
 
   const onDrop = useCallback(acceptedFiles => {
     const file = acceptedFiles[0];
@@ -24,8 +23,6 @@ const FileUploader = ({ onFileRead }) => {
           });
           content += '\n'; // Add newline at the end of each row
         });
-
-        setFileContent(content);
         onFileRead(worksheet);
       } else {
         console.error('Error reading file');
@@ -42,10 +39,6 @@ const FileUploader = ({ onFileRead }) => {
       <div {...getRootProps({ style: dropzoneStyle })}>
         <input {...getInputProps()} />
         <p>Arrastra un archivo aquí, o haz clic para seleccionar uno</p>
-      </div>
-      <div>
-        <h3>Contenido del archivo:</h3>
-        <pre>{fileContent}</pre>
       </div>
     </div>
   );
