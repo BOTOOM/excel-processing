@@ -14,16 +14,9 @@ const FileUploader = ({ onFileRead }) => {
         const uint8Array = new Uint8Array(arrayBuffer);
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.load(uint8Array);
-
-        const worksheet = workbook.getWorksheet("6. Verificación partidas"); // Assuming you want to read the first sheet
-        let content = '';
-        worksheet.eachRow((row, rowNumber) => {
-          row.eachCell((cell, colNumber) => {
-            content += `${cell.value}\t`; // Add tab between cell values
-          });
-          content += '\n'; // Add newline at the end of each row
-        });
-        onFileRead(worksheet);
+        // console.log(workbook)
+        // const worksheet = workbook.getWorksheet("6. Verificación partidas"); // Assuming you want to read the first sheet
+        onFileRead(workbook);
       } else {
         console.error('Error reading file');
       }

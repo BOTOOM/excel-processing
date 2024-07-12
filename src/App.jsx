@@ -7,6 +7,9 @@ import ExcelJS from "exceljs";
 
 function App() {
   const [worksheet, setWorksheet] = useState(null);
+  const [hojasLista, setHojasLista] = useState([]);
+
+  const [fileworkbook, setWorkbook] = useState(null);
   const [listRango, setlistRango] = useState("");
   const [headersLista, setHeadersLista] = useState([]);
   const [listaComparacion, setListaComparacion] = useState([]);
@@ -27,8 +30,25 @@ function App() {
     setTablaRango(e.target.value);
   };
 
-  const handleFileRead = (ws) => {
+  const getSheets = (wb) => {
+    const hojas = wb._worksheets.map((hoja) => {
+      return hoja._name
+    })
+    console.log(hojas)
+    setHojasLista(hojas)
+  }
+
+  const handleSelectSheet= (e) => {
+    console.log("HOJA",e.target.value);
+    const ws = fileworkbook.getWorksheet(e.target.value);
+    // console.log("lista",lista)
     setWorksheet(ws);
+  };
+
+  const handleFileRead = (wb) => {
+    setWorkbook(wb);
+    console.log(wb._worksheets)
+    getSheets(wb)
   };
 
   const handleSelectFilaOrden = (e) => {
@@ -201,6 +221,10 @@ function App() {
     try {
       console.log("Procesando archivo...");
       console.log(worksheet);
+      // const rango = parseRange("B22:D179");
+      // const headers = obtenerHeaders(worksheet, rango);
+      // const lista = obtenerListaComparativa(worksheet, rango, 1);
+      // const rangoTabla = parseRange("F22:U179");
 
       console.log(listaComparacion)
       console.log(tabla)
@@ -223,6 +247,22 @@ function App() {
         <FileUploader onFileRead={handleFileRead} />
       </div>
       <div className="contenedor-form">
+      {hojasLista.length > 0 ? (
+              <>
+                <br />
+                <span>Seleccione la hoja del excel que tiene los datos</span>
+                <select name="lista" id="lista" onChange={handleSelectSheet}>
+                  {hojasLista.map((item, index) => {
+                    return (
+                      <option value={`${item}`}>{item}</option>
+                    );
+                  })}
+                </select>
+                <br />
+              </>
+            ) : (
+              ""
+            )}
         {worksheet ? (
           <>
             <span>
@@ -271,7 +311,7 @@ function App() {
           </>
         ) : null}
       </div>
-      <button className="myboton" onClick={procesarArchivo}>Procesar</button>
+      {(tablaRangoObj &&listRangoObj && listaComparacion.length > 0 && tabla)?<button className="myboton" onClick={procesarArchivo}>Procesar</button>: ""}
     </>
   );
 }
