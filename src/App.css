@@ -40,3 +40,12 @@
 .read-the-docs {
   color: #888;
 }
+
+.contenedor-form {
+  margin-top: 2rem;
+}
+
+.myboton {
+  margin: 1rem;
+  border: solid;
+}

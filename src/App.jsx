@@ -11,11 +11,20 @@ function App() {
   const [headersLista, setHeadersLista] = useState([]);
   const [listaComparacion, setListaComparacion] = useState([]);
   const [listRangoObj, setlistRangoObj] = useState(null);
-
+  const [tablaRango, setTablaRango] = useState("");
+  const [tablaRangoObj, setTablaRangoObj] = useState(null);
+  const [headerTabla, setHeadersTabla] = useState([]);
+  const [IndexComparacion, setIndexComparacion] = useState(0);
+  const [tabla, setTabla] = useState(null);
 
   const hangleListaRango = (e) => {
     console.log(e.target.value);
     setlistRango(e.target.value);
+  };
+
+  const hangleTablaRango = (e) => {
+    console.log(e.target.value);
+    setTablaRango(e.target.value);
   };
 
   const handleFileRead = (ws) => {
@@ -25,18 +34,40 @@ function App() {
   const handleSelectFilaOrden = (e) => {
     // console.log("valor",Number(e.target.value.split("mydot")[1]));
     // console.log(listRangoObj)
-    const lista = obtenerListaComparativa(worksheet, listRangoObj, Number(e.target.value.split("mydot")[1]));
+    const lista = obtenerListaComparativa(
+      worksheet,
+      listRangoObj,
+      Number(e.target.value.split("mydot")[1])
+    );
     // console.log("lista",lista)
-    setListaComparacion(lista)
-  }
+    setListaComparacion(lista);
+  };
 
   const cargarHeaders = () => {
     console.log("Procesando archivo...");
     console.log(worksheet);
     const rango = parseRange(listRango);
-    setlistRangoObj(rango)
+    setlistRangoObj(rango);
     const headers = obtenerHeaders(worksheet, rango);
-    setHeadersLista(headers)
+    setHeadersLista(headers);
+  };
+
+  const cargarHeaderTabla = () => {
+    // console.log("Procesando archivo...");
+    // console.log(worksheet);
+    const rangoTabla = parseRange(tablaRango);
+    setTablaRangoObj(rangoTabla);
+    const headersTabla = obtenerHeaders(worksheet, rangoTabla);
+    setHeadersTabla(headersTabla);
+    // const tabla = obtenerTabla(worksheet, rangoTabla, 1);
+
+    // const headers = obtenerHeaders(worksheet, rango);
+  };
+
+  const handleSelectFilaTabla = (e) => {
+    setIndexComparacion(Number(e.target.value.split("nodot")[1]))
+    const tabla = obtenerTabla(worksheet, tablaRangoObj, Number(e.target.value.split("nodot")[1]));
+    setTabla(tabla)
   };
 
   const parseRange = (range) => {
@@ -64,9 +95,9 @@ function App() {
 
   const obtenerListaComparativa = (worksheet, rangeObj, index) => {
     const lista = [];
-    console.log("rangeObj",rangeObj)
-    console.log("worksheet",worksheet)
-    console.log("index",index)
+    console.log("rangeObj", rangeObj);
+    console.log("worksheet", worksheet);
+    console.log("index", index);
 
     for (let i = rangeObj.startRow + 1; i <= rangeObj.endRow; i++) {
       const row = worksheet.getRow(i);
@@ -100,6 +131,7 @@ function App() {
     }
     return { tabla, mapa };
   };
+
   function createEmptyArray(cuantity, index, key) {
     const fila = new Array(cuantity).fill("");
     fila[index] = key;
@@ -169,15 +201,13 @@ function App() {
     try {
       console.log("Procesando archivo...");
       console.log(worksheet);
-      // const rango = parseRange("B22:D179");
-      // const headers = obtenerHeaders(worksheet, rango);
-      // const lista = obtenerListaComparativa(worksheet, rango, 1);
-      const rangoTabla = parseRange("F22:U179");
-      const headersTabla = obtenerHeaders(worksheet, rangoTabla);
-      const tabla = obtenerTabla(worksheet, rangoTabla, 1);
-      const tablaOrdenada = ordenarTabla(lista, tabla, 1);
+
+      console.log(listaComparacion)
+      console.log(tabla)
+      console.log(IndexComparacion)
+      const tablaOrdenada = ordenarTabla(listaComparacion, tabla, IndexComparacion);
       console.log({ tablaOrdenada });
-      await crearArchivo(headersTabla, tablaOrdenada);
+      await crearArchivo(headerTabla, tablaOrdenada);
       console.log("Archivo creado y descargado correctamente.");
     } catch (error) {
       console.error("Error al procesar y descargar el archivo:", error);
@@ -188,11 +218,11 @@ function App() {
     <>
       <div>
         <img src={viteLogo} className="logo" alt="Vite logo" />
-        <h1>Pordenador de excel</h1>
-        <p>Cargue su archivo</p>
+        <h1>Ordenador de excel</h1>
+        <p><strong>Cargue su archivo</strong></p>
         <FileUploader onFileRead={handleFileRead} />
       </div>
-      <div>
+      <div className="contenedor-form">
         {worksheet ? (
           <>
             <span>
@@ -200,20 +230,48 @@ function App() {
             </span>
             <input type="text" onChange={hangleListaRango} />
             <br />
-            <button onClick={cargarHeaders}>Buscar tabla de comparación</button>
-            <br />
+            <button className="myboton" onClick={cargarHeaders}>Buscar tabla de comparación</button>
+            {headersLista.length > 0 ? (
+              <>
+                <br />
 
-            <span>Seleccione la fila ordenada</span>
-            <select name="cars" id="cars" onChange={handleSelectFilaOrden}>
-              {headersLista.map((item, index)=> {
-                return (<option value={`${item}mydot${index}`} >{item}</option>)
-                
-              })}
-            </select>
+                <span>Seleccione la fila ordenada</span>
+                <select name="lista" id="lista" onChange={handleSelectFilaOrden}>
+                  {headersLista.map((item, index) => {
+                    return (
+                      <option value={`${item}mydot${index}`}>{item}</option>
+                    );
+                  })}
+                </select>
+              </>
+            ) : (
+              ""
+            )}
+            <br />
+            <span>Ingrese el rango de la tabla que quiere ordenar</span>
+            <input type="text" onChange={hangleTablaRango} />
+            <br />
+            <button className="myboton" onClick={cargarHeaderTabla}>Buscar tabla a ordenar</button>
+            {headerTabla.length > 0 ? (
+              <>
+                <br />
+
+                <span>Seleccione la fila ordenada</span>
+                <select name="tabla" id="tabla" onChange={handleSelectFilaTabla}>
+                  {headerTabla.map((item, index) => {
+                    return (
+                      <option value={`${item}nodot${index}`}>{item}</option>
+                    );
+                  })}
+                </select>
+              </>
+            ) : (
+              ""
+            )}
           </>
         ) : null}
       </div>
-      <button onClick={procesarArchivo}>Procesar</button>
+      <button className="myboton" onClick={procesarArchivo}>Procesar</button>
     </>
   );
 }
